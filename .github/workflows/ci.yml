@@ -1,0 +1,27 @@
+name: Build and Push Application Image
+
+# 1. Trigger this workflow every time someone pushes code to the 'main' branch
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest # Runs on a clean virtual machine hosted by GitHub
+
+    steps:
+    # 2. Pull down the code from this repository into the virtual machine
+    - name: Check out the code
+      uses: actions/checkout@v4
+
+    # 3. Log into Docker Hub (simulated here using placeholders)
+    - name: Log in to Docker Hub
+      run: echo "Logging into Docker Hub using secrets..."
+
+    # 4. Build the application into a Docker image container
+    - name: Build Docker Image
+      run: docker build -t my-devops-username/argo-demo-app:latest .
+
+    # 5. Push the completed container to the cloud registry
+    - name: Push Image to Registry
+      run: echo "Pushing image to the cloud registry..."
