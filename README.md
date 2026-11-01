@@ -1,18 +1,38 @@
-# argo-demo-app
-simply python app build into docker image for later K8s ArgoCD demo.
+# 🚀 ArgoCD GitOps Demo - Application Source (`argo-demo-app`)
 
-# 🚀 ArgoCD GitOps Portfolio Project
+This repository contains the application source code and continuous integration (CI) workflows for the GitOps Portfolio Project. 
 
-This portfolio project demonstrates a production-grade **Pull-based GitOps pipeline** utilizing decoupled application and configuration repositories.
-
-## 🏗️ Architecture Design
-1. **CI Layer:** Developer pushes to `argo-demo-app` ➡️ GitHub Actions builds image tagged with Git Commit SHA.
-2. **GitOps Trigger:** GitHub Actions updates the image reference inside the `argo-demo-config` repository.
-3. **CD Layer:** Argo CD detects configuration drift ➡️ Reconciles cluster state to match the updated configuration repository state automatically.
+## 🏗️ System Architecture
+This project utilizes a **decoupled polyrepo architecture** to enforce a strict separation of concerns between application code and deployment configurations:
+1. **Developer Push:** Code modifications are pushed to this repository (`argo-demo-app`).
+2. **CI Pipeline:** GitHub Actions builds a stateless Docker container tagged with the unique Git Commit SHA.
+3. **GitOps Handshake:** The pipeline securely checks out the companion infrastructure repository (`argo-demo-config`) and updates the deployment manifest with the newly generated image tag.
 
 ## 🛠️ Tech Stack
-* **Runtime:** Python 3.11
+* **Language:** Python 3.11 (Stateless HTTP Server)
 * **Containerization:** Docker
 * **CI Automation:** GitHub Actions
-* **Continuous Delivery:** Argo CD
-* **Orchestration:** Kubernetes (K8s)
+
+## 💻 Local Development & Testing
+
+To run and test the containerized application locally on your machine:
+
+```bash
+# Clone the repository
+git clone https://github.com
+cd argo-demo-app
+
+# Build the Docker image
+docker build -t argo-demo-app:local .
+
+# Run the container locally
+docker run -d -p 8080:8080 argo-demo-app:local
+```
+Once running, navigate to `http://localhost:8080` in your web browser to verify the deployment.
+
+## 🤖 CI/CD Workflow (`.github/workflows/deploy.yml`)
+The integrated automated pipeline performs the following tasks on every push to the `main` branch:
+* Checks out the latest source code.
+* Packages the runtime environment using the local `Dockerfile`.
+* Uses a `sed` stream editor to dynamically inject the immutable image tag into the declarative GitOps repo manifests.
+* Pushes the atomic configuration update to trigger the Argo CD reconciliation loop.
