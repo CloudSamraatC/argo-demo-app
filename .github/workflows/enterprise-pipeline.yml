@@ -1,0 +1,34 @@
+name: Enterprise Isolated GitOps Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-sync-enterprise:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Application Code
+      uses: actions/checkout@v4
+
+    - name: Build Docker Container
+      run: |
+        echo "Building clean enterprise image..."
+        docker build -t ${{ github.repository_owner }}/argo-demo-app:${{ github.sha }} .
+
+    - name: Deploy to Enterprise GitOps Repo
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@://github.com"
+        
+        # This points strictly to your brand-new enterprise repo
+        git clone https://x-access-token:${{ secrets.GITOPS_TOKEN }}@://github.com{{ github.repository_owner }}/argo-gitops-enterprise.git
+        cd argo-gitops-enterprise
+        
+        # Updates the image inside the clean base folder we built earlier
+        sed -i "s|image: .*|image: ${{ github.repository_owner }}/argo-demo-app:${{ github.sha }}|g" base/deployment.yaml
+        
+        git add base/deployment.yaml
+        git commit -m "chore(cd): isolated enterprise release tag ${{ github.sha }} [skip ci]"
+        git push
