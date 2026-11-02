@@ -15,21 +15,20 @@ jobs:
     - name: Build Docker Container
       run: |
         echo "Building clean enterprise image..."
-        docker build -t ${{ github.repository_owner }}/argo-demo-app:${{ github.sha }} .
+        docker build -t CloudSamraatC/argo-demo-app:${{ github.sha }} .
 
     - name: Deploy to Enterprise GitOps Repo
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         
-        # Using the direct shell environment variable to escape parsing bugs
-        git clone "https://x-access-token:${{ secrets.GITOPS_TOKEN }}@://github.com{GITHUB_REPOSITORY_OWNER}/argo-gitops-enterprise.git"
+        # Completely cleaned up URL path with no broken brackets
+        git clone "https://x-access-token:${{ secrets.GITOPS_TOKEN }}@://github.com"
         cd argo-gitops-enterprise
         
-        # Dynamically updates the deployment specification image tag reference
-        sed -i "s|image: .*|image: ${GITHUB_REPOSITORY_OWNER}/argo-demo-app:${{ github.sha }}|g" base/deployment.yaml
+        # Updates the deployment image tag marker inside the clean base folder
+        sed -i "s|image: .*|image: CloudSamraatC/argo-demo-app:${{ github.sha }}|g" base/deployment.yaml
         
         git add base/deployment.yaml
         git commit -m "chore(cd): isolated enterprise release tag ${{ github.sha }} [skip ci]"
         git push
-
