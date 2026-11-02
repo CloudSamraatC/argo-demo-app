@@ -21,8 +21,7 @@ class MyHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "text/html")
         self.end_headers()
         self.wfile.write(html.encode())
-
-
+#
 class MyServer:
     def __init__(self, host="0.0.0.0", port=8080):
         self.host = host
