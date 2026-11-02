@@ -18,15 +18,18 @@ jobs:
         docker build -t CloudSamraatC/argo-demo-app:${{ github.sha }} .
 
     - name: Deploy to Enterprise GitOps Repo
+      env:
+        # We isolate the link inside an explicit environment variable here
+        TARGET_REPO: "https://x-access-token:${{ secrets.GITOPS_TOKEN }}@://github.com"
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         
-        # Completely cleaned up URL path with no broken brackets
-        git clone "https://x-access-token:${{ secrets.GITOPS_TOKEN }}@://github.com"
+        # Pull down the infrastructure project using the verified string variable
+        git clone "$TARGET_REPO"
         cd argo-gitops-enterprise
         
-        # Updates the deployment image tag marker inside the clean base folder
+        # Modify the baseline deployment tag specification reference
         sed -i "s|image: .*|image: CloudSamraatC/argo-demo-app:${{ github.sha }}|g" base/deployment.yaml
         
         git add base/deployment.yaml
