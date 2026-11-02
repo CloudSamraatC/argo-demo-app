@@ -25,9 +25,11 @@ jobs:
       env:
         API_TOKEN_GITHUB: ${{ secrets.GITOPS_TOKEN }}
       with:
-        source_file: 'base/deployment.yaml' # The file inside your app repo to push
+        # Changed from 'base/deployment.yaml' because the file sits in your root directory!
+        source_file: 'Dockerfile' 
         destination_repo: 'CloudSamraatC/argo-gitops-enterprise'
         destination_folder: 'base'
         user_email: 'github-actions[bot]@://github.com'
         user_name: 'github-actions[bot]'
         commit_message: 'chore(cd): isolated enterprise release tag [skip ci]'
+
