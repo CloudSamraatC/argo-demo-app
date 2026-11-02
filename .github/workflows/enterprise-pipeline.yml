@@ -20,16 +20,16 @@ jobs:
     - name: Deploy to Enterprise GitOps Repo
       run: |
         git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@://github.com"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
         
-        # This points strictly to your brand-new enterprise repo
-               # Wrapped perfectly in quotes to handle any special spaces or characters
-        git clone "https://x-access-token:${{ secrets.GITOPS_TOKEN }}@://github.com{{ github.repository_owner }}/argo-gitops-enterprise.git"
+        # Using the direct shell environment variable to escape parsing bugs
+        git clone "https://x-access-token:${{ secrets.GITOPS_TOKEN }}@://github.com{GITHUB_REPOSITORY_OWNER}/argo-gitops-enterprise.git"
         cd argo-gitops-enterprise
         
-        # Updates the image inside the clean base folder we built earlier
-        sed -i "s|image: .*|image: ${{ github.repository_owner }}/argo-demo-app:${{ github.sha }}|g" base/deployment.yaml
+        # Dynamically updates the deployment specification image tag reference
+        sed -i "s|image: .*|image: ${GITHUB_REPOSITORY_OWNER}/argo-demo-app:${{ github.sha }}|g" base/deployment.yaml
         
         git add base/deployment.yaml
         git commit -m "chore(cd): isolated enterprise release tag ${{ github.sha }} [skip ci]"
         git push
+
