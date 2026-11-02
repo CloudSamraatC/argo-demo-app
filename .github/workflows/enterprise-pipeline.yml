@@ -23,7 +23,8 @@ jobs:
         git config --global user.email "github-actions[bot]@://github.com"
         
         # This points strictly to your brand-new enterprise repo
-        git clone https://x-access-token:${{ secrets.GITOPS_TOKEN }}@://github.com{{ github.repository_owner }}/argo-gitops-enterprise.git
+               # Wrapped perfectly in quotes to handle any special spaces or characters
+        git clone "https://x-access-token:${{ secrets.GITOPS_TOKEN }}@://github.com{{ github.repository_owner }}/argo-gitops-enterprise.git"
         cd argo-gitops-enterprise
         
         # Updates the image inside the clean base folder we built earlier
